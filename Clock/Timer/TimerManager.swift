@@ -10,13 +10,34 @@ import SwiftUI
 
 final class TimerManager: ObservableObject {
     private(set) var timer: Timer?
+    
     var totalCount: Int {
         return hour * 60 * 60 + minute * 60 + second
     }
+    
+    var hour: Int {
+        return Int(self.selection[0])!
+    }
+    var minute: Int {
+        return Int(self.selection[1])!
+    }
+    var second: Int {
+        return Int(self.selection[2])!
+    }
+
+    @Published var selection = [0, 0, 5].map({"\($0)"}) {
+        didSet {
+            self.counter = self.totalCount
+        }
+    }
+
+    @Published var data: [(String, [String])] = [
+        ("Hour", Array(0...23).map({"\($0)"})),
+        ("Minute", Array(0...60).map({"\($0)"})),
+        ("Second", Array(0...60).map({"\($0)"})),
+    ]
+    
     @Published var state: TimerState = .ready
-    @Published var hour = 0
-    @Published var minute = 0
-    @Published var second = 5
     @Published var counter = 0 {
         didSet {
             self.startDisabled = self.totalCount == 0

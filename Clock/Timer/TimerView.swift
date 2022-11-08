@@ -30,45 +30,6 @@ struct TimerView: View {
         
     }
     
-    var pickerView: some View {
-        GeometryReader { geometry in
-            HStack(spacing: 0) {
-                
-                Picker("", selection: $timerManager.hour) {
-                    ForEach(0..<24) { i in
-                        Text(String(i))
-                    }
-                }
-                .pickerStyle(WheelPickerStyle())
-                .frame(width: geometry.size.width / 3.0, height: geometry.size.height)
-                .compositingGroup()
-                .clipped()
-                
-                Picker("", selection: $timerManager.minute) {
-                    ForEach(0..<60) { i in
-                        Text(String(i))
-                    }
-                }
-                .pickerStyle(WheelPickerStyle())
-                .frame(width: geometry.size.width / 3.0, height: geometry.size.height)
-                .compositingGroup()
-                .clipped()
-                
-                Picker("", selection: $timerManager.second) {
-                    ForEach(0..<60) { i in
-                        Text(String(i))
-                    }
-                }
-                .pickerStyle(WheelPickerStyle())
-                .frame(width: geometry.size.width / 3.0, height: geometry.size.height)
-                .compositingGroup()
-                .clipped()
-                
-            }
-        }
-        .frame(height: 300)
-    }
-    
     var actionView: some View {
         HStack {
             Button {
@@ -121,9 +82,10 @@ struct TimerView: View {
     }
     
     var body: some View {
-        ScrollView {
+        VStack {
             if self.timerManager.state == .ready {
-                pickerView
+                MutiplePicker(data: timerManager.data, selection: $timerManager.selection)
+                    .frame(height: 300)
                     .padding()
             } else {
                 TimerProgressView()
@@ -135,6 +97,8 @@ struct TimerView: View {
                 .padding()
             musicSelectView
                 .padding()
+            
+            Spacer()
         }
     }
 }
@@ -142,5 +106,31 @@ struct TimerView: View {
 struct TimerView_Previews: PreviewProvider {
     static var previews: some View {
         TimerView()
+    }
+}
+
+struct MutiplePicker: View {
+    typealias Label = String
+    typealias Entry = String
+    
+    let data: [(Label, [Entry])]
+    @Binding var selection: [Entry]
+    
+    var body: some View {
+        GeometryReader { geometry in
+            HStack {
+                ForEach(0..<self.data.count, id: \.self) { column in
+                    Picker(self.data[column].0, selection: $selection[column]) {
+                        ForEach(0..<self.data[column].1.count, id: \.self) { row in
+                            Text(verbatim: self.data[column].1[row])
+                                .tag(self.data[column].1[row])
+                        }
+                    }
+                    .pickerStyle(WheelPickerStyle())
+                    .frame(width: geometry.size.width / Double(self.data.count), height: geometry.size.height)
+                    .clipped()
+                }
+            }
+        }
     }
 }
